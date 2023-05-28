@@ -46,3 +46,8 @@ Search for a specific song
     api = MusixMatchAPI(proxies=proxies)
     search = api.get_track(track_id=15445219)
 ```
+
+
+# Disclaimer
+
+The content provided herein is intended strictly for educational purposes. Any misuse or abuse of this information that contradicts this purpose, including but not limited to the unauthorized distribution, reproduction, or alteration of content, or the use of information for illicit activities, is strictly prohibited and may constitute a violation of applicable laws and regulations. This could lead to serious consequences including legal action. Educational resources are to be used responsibly, ethically, and with integrity. We reserve the right to restrict access to these resources for anyone found violating these terms.
