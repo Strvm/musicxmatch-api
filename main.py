@@ -6,6 +6,8 @@ import re
 import urllib
 from datetime import datetime
 from enum import Enum
+from functools import cache
+
 import requests
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
@@ -26,12 +28,13 @@ class EndPoints(Enum):
 
 
 class MusixMatchAPI:
-    def __init__(self, proxies):
+    def __init__(self, proxies=None):
         self.base_url = "https://www.musixmatch.com/ws/1.1/"
         self.headers = {"User-Agent": USER_AGENT}
         self.proxies = proxies
         self.secret = self.get_secret()
 
+    @cache
     def get_secret(self):
         data = requests.get("https://s.mxmcdn.net/site/js/common-c3a9f29dfd8f6a48a3c7.js", headers=self.headers,
                             proxies=self.proxies, timeout=5)
