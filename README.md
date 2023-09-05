@@ -45,6 +45,7 @@ Search for a specific song to get its lyrics
     track_id = 103149239 # Skyfall by Adele
     api = MusixMatchAPI(proxies=proxies)
     search = api.get_track_lyrics(track_id=track_id)
+    # The lyrics are in the "lyrics_body" key
     lyrics = search["message"]["body"]["lyrics"]["lyrics_body"]
 ```
 
