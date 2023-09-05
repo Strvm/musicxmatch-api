@@ -23,22 +23,29 @@ pip install musicxmatch_api
 Search for artists
 ```python
     # If you need to make a high volume of requests, consider using proxies
+    from musicxmatch_api import MusixMatchAPI
     api = MusixMatchAPI(proxies=proxies)
-    search = api.search_artist("eminem")
+    search = api.search_artist("adele")
 ```
 
 Search for songs
 ```python
     # If you need to make a high volume of requests, consider using proxies
-    api = MusixMatchAPI(proxies=proxies)
-    search = api.search_tracks("eminem")
+    import json
+    from musicxmatch_api import MusixMatchAPI
+    api = MusixMatchAPI()
+    search = api.search_tracks("skyfall")
+    print(json.dumps(search, indent=4))
 ```
 
-Search for a specific song
+Search for a specific song to get its lyrics
 ```python
     # If you need to make a high volume of requests, consider using proxies
+    from musicxmatch_api import MusixMatchAPI
+    track_id = 103149239 # Skyfall by Adele
     api = MusixMatchAPI(proxies=proxies)
-    search = api.get_track(track_id=15445219)
+    search = api.get_track_lyrics(track_id=track_id)
+    lyrics = search["message"]["body"]["lyrics"]["lyrics_body"]
 ```
 
 
