@@ -8,7 +8,7 @@ setuptools.setup(
     author="Roméo Phillips",
     author_email="phillipsromeo@gmail.com",
     description="Extract lyrics from MusicXMatch API, for free.",
-    keywords="lyrics, songs, music, musicxmatch, api, musicxmatch-api, musicxmatch-api-python",
+    keywords="lyrics, songs, music, musicxmatch, api, musicxmatch_api, musicxmatch_api-python",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tomchen/example_pypi_package",
