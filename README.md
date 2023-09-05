@@ -15,13 +15,7 @@ You can basically query for any lyrics and translation from their API, a more de
 First, you need to install the package:
 
 ```bash
-git clone https://github.com/Strvm/MusicXMatchAPI.git 
-```
-
-Then, you can import the package and start using it:
-
-```bash
-pip install requirements.txt
+pip install musicxmatch_api
 ```
 
 # Examples

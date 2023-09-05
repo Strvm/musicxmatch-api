@@ -1,0 +1,23 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "musicxmatch_api"
+version = "0.1.0"
+description = "Get lyrics of any songs, for free."
+authors = ["Romeo Phillips"]
+
+[tool.poetry.dependencies]
+python = "^3.7"  # or whichever version you're targeting
+certifi = "2023.7.22"
+charset-normalizer = "3.2.0"
+idna = "3.4"
+requests = "2.31.0"
+urllib3 = "2.0.4"
+wheel = "0.41.2"
+beautifulsoup4 = "4.12.2"
+
+
+[build]
+script = "build.py"

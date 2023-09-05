@@ -1,7 +1,8 @@
 import base64
 import hashlib
 import hmac
-import json
+from bs4 import BeautifulSoup
+
 import re
 import urllib
 from datetime import datetime
@@ -11,7 +12,8 @@ from functools import cache
 import requests
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
-SIGNATURE_KEY_URL = "https://s.mxmcdn.net/site/js/app-28fc4f3e787b566ffaff.js"
+SIGNATURE_KEY_BASE_URL = "https://s.mxmcdn.net/site/js/"
+
 
 class EndPoints(Enum):
     GET_ARTIST = "artist.get"
@@ -35,9 +37,21 @@ class MusixMatchAPI:
         self.secret = self.get_secret()
 
     @cache
+    def get_latest_app(self):
+        data = requests.get("https://www.musixmatch.com/explore", headers=self.headers)
+        soup = BeautifulSoup(data.text, "html.parser")
+        script_tags = soup.find_all("script", attrs={"async": True})
+        last_script_src = script_tags[-1]["src"]
+        return last_script_src.split("/")[-1]
+
+    @cache
     def get_secret(self):
-        data = requests.get(SIGNATURE_KEY_URL, headers=self.headers,
-                            proxies=self.proxies, timeout=5)
+        data = requests.get(
+            SIGNATURE_KEY_BASE_URL + self.get_latest_app(),
+            headers=self.headers,
+            proxies=self.proxies,
+            timeout=5,
+        )
         regex_pattern = r'.*signatureSecret:"([^"]*)"'
         match = re.search(regex_pattern, data.text, re.DOTALL)
         if match:
@@ -53,8 +67,11 @@ class MusixMatchAPI:
         message = (url + l + s + r).encode()
         key = self.secret.encode()
         hash_output = hmac.new(key, message, hashlib.sha1).digest()
-        signature = "&signature=" + urllib.parse.quote(
-            base64.b64encode(hash_output).decode()) + "&signature_protocol=sha1"
+        signature = (
+            "&signature="
+            + urllib.parse.quote(base64.b64encode(hash_output).decode())
+            + "&signature_protocol=sha1"
+        )
         return signature
 
     def search_tracks(self, track_query, page=1) -> dict:
@@ -104,5 +121,7 @@ class MusixMatchAPI:
     def make_request(self, url) -> dict:
         url = self.base_url + url
         signed_url = url + self.generate_signature(url)
-        response = requests.get(signed_url, headers=self.headers, proxies=self.proxies, timeout=5)
+        response = requests.get(
+            signed_url, headers=self.headers, proxies=self.proxies, timeout=5
+        )
         return response.json()
