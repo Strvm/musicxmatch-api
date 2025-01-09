@@ -36,7 +36,8 @@ class MusixMatchAPI:
         self.base_url = "https://www.musixmatch.com/ws/1.1/"
         self.headers = {"User-Agent": USER_AGENT}
         self.proxies = proxies
-        self.secret = self.get_secret()
+        # self.secret = self.get_secret()
+        self.secret = "675248f6f40e26cb49f5881077059b25"
 
     @cache
     def get_latest_app(self):
@@ -62,17 +63,17 @@ class MusixMatchAPI:
         raise Exception("Couldn't find signature secret")
 
     def generate_signature(self, url):
-        current_date = datetime.utcnow()
+        current_date = datetime.now()
         l = str(current_date.year)
         s = str(current_date.month).zfill(2)
         r = str(current_date.day).zfill(2)
         message = (url + l + s + r).encode()
         key = self.secret.encode()
-        hash_output = hmac.new(key, message, hashlib.sha1).digest()
+        hash_output = hmac.new(key, message, hashlib.sha256).digest()
         signature = (
             "&signature="
             + urllib.parse.quote(base64.b64encode(hash_output).decode())
-            + "&signature_protocol=sha1"
+            + "&signature_protocol=sha256"
         )
         return signature
 
@@ -127,3 +128,9 @@ class MusixMatchAPI:
             signed_url, headers=self.headers, proxies=self.proxies, timeout=5
         )
         return response.json()
+
+
+if __name__ == '__main__':
+    api = MusixMatchAPI()
+    search = api.search_artist("adele")
+    print(json.dumps(search, indent=4))
