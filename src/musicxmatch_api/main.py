@@ -36,31 +36,62 @@ class MusixMatchAPI:
         self.base_url = "https://www.musixmatch.com/ws/1.1/"
         self.headers = {"User-Agent": USER_AGENT}
         self.proxies = proxies
-        # self.secret = self.get_secret()
-        self.secret = "675248f6f40e26cb49f5881077059b25"
+        self.secret = self.get_secret()
 
     @cache
     def get_latest_app(self):
-        data = requests.get("https://www.musixmatch.com/explore", headers=self.headers)
-        soup = BeautifulSoup(data.text, "html.parser")
-        script_tags = soup.find_all("script", attrs={"async": True})
-        last_script_src = script_tags[-1]["src"]
-        return last_script_src.split("/")[-1]
+        url = "https://www.musixmatch.com/search"
+
+        headers = {
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Cookie': 'mxm_bab=AB'
+        }
+        response = requests.request("GET", url, headers=headers)
+        # Fetch HTML content
+        html_content = response.text
+
+        # Regular expression to match `_app` script URLs
+        pattern = r'src="([^"]*/_next/static/chunks/pages/_app-[^"]+\.js)"'
+
+        # Find all matches
+        matches = re.findall(pattern, html_content)
+
+        # Extract the latest `_app` URL
+        if matches:
+            latest_app_url = matches[-1]  # Get the last match if multiple are found
+        else:
+            raise Exception("_app URL not found in the HTML content.")
+        return latest_app_url
 
     @cache
     def get_secret(self):
         data = requests.get(
-            SIGNATURE_KEY_BASE_URL + self.get_latest_app(),
+            self.get_latest_app(),
             headers=self.headers,
             proxies=self.proxies,
             timeout=5,
         )
-        regex_pattern = r'.*signatureSecret:"([^"]*)"'
-        match = re.search(regex_pattern, data.text, re.DOTALL)
+        javascript_code = data.text
+
+
+        # Regular expression to capture the string inside `from(...)`
+        pattern = r'from\(\s*"(.*?)"\s*\.split'
+
+        # Search for the encoded string
+        match = re.search(pattern, javascript_code)
+
         if match:
-            signature_secret = match.group(1)
-            return signature_secret
-        raise Exception("Couldn't find signature secret")
+            encoded_string = match.group(1)
+            reversed_string = encoded_string[::-1]
+
+            # Decode the reversed string from Base64
+            decoded_bytes = base64.b64decode(reversed_string)
+
+            # Convert bytes to a string
+            decoded_string = decoded_bytes.decode("utf-8")
+            return decoded_string
+        else:
+            raise Exception("Encoded string not found in the JavaScript code.")
 
     def generate_signature(self, url):
         current_date = datetime.now()
