@@ -112,12 +112,22 @@ class MusixMatchAPI:
         url = f"{EndPoints.SEARCH_TRACK.value}?app_id=community-app-v1.0&format=json&q={urllib.parse.quote(track_query)}&f_has_lyrics=true&page_size=100&page={page}"
         return self.make_request(url)
 
-    def get_track(self, track_id) -> dict:
-        url = f"{EndPoints.GET_TRACK.value}?app_id=community-app-v1.0&format=json&track_id={track_id}"
+    def get_track(self, track_id=None, track_isrc=None) -> dict:
+        if track_id:
+            url = f"{EndPoints.GET_TRACK.value}?app_id=community-app-v1.0&format=json&track_id={track_id}"
+        elif track_isrc:
+            url = f"{EndPoints.GET_TRACK.value}?app_id=community-app-v1.0&format=json&track_isrc={track_isrc}"
+        else:
+            raise ValueError("Either track_id or track_isrc must be provided.")
         return self.make_request(url)
 
-    def get_track_lyrics(self, track_id) -> dict:
-        url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=community-app-v1.0&format=json&track_id={track_id}"
+    def get_track_lyrics(self, track_id=None, track_isrc=None) -> dict:
+        if track_id:
+            url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=community-app-v1.0&format=json&track_id={track_id}"
+        elif track_isrc:
+            url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=community-app-v1.0&format=json&track_isrc={track_isrc}"
+        else:
+            raise ValueError("Either track_id or track_isrc must be provided.")
         return self.make_request(url)
 
     def get_artist_chart(self, country="US", page=1) -> dict:
