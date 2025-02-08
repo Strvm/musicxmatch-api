@@ -3,7 +3,6 @@ import hashlib
 import hmac
 import json
 
-from bs4 import BeautifulSoup
 
 import re
 import urllib
@@ -43,8 +42,8 @@ class MusixMatchAPI:
         url = "https://www.musixmatch.com/search"
 
         headers = {
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-            'Cookie': 'mxm_bab=AB'
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Cookie": "mxm_bab=AB",
         }
         response = requests.request("GET", url, headers=headers)
         # Fetch HTML content
@@ -72,7 +71,6 @@ class MusixMatchAPI:
             timeout=5,
         )
         javascript_code = data.text
-
 
         # Regular expression to capture the string inside `from(...)`
         pattern = r'from\(\s*"(.*?)"\s*\.split'
@@ -112,12 +110,24 @@ class MusixMatchAPI:
         url = f"{EndPoints.SEARCH_TRACK.value}?app_id=community-app-v1.0&format=json&q={urllib.parse.quote(track_query)}&f_has_lyrics=true&page_size=100&page={page}"
         return self.make_request(url)
 
-    def get_track(self, track_id) -> dict:
-        url = f"{EndPoints.GET_TRACK.value}?app_id=community-app-v1.0&format=json&track_id={track_id}"
+    def get_track(self, track_id=None, track_isrc=None) -> dict:
+        if not (track_id or track_isrc):
+            raise ValueError("Either track_id or track_isrc must be provided.")
+
+        param = f"track_id={track_id}" if track_id else f"track_isrc={track_isrc}"
+        url = (
+            f"{EndPoints.GET_TRACK.value}?app_id=community-app-v1.0&format=json&{param}"
+        )
+
         return self.make_request(url)
 
-    def get_track_lyrics(self, track_id) -> dict:
-        url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=community-app-v1.0&format=json&track_id={track_id}"
+    def get_track_lyrics(self, track_id=None, track_isrc=None) -> dict:
+        if not (track_id or track_isrc):
+            raise ValueError("Either track_id or track_isrc must be provided.")
+
+        param = f"track_id={track_id}" if track_id else f"track_isrc={track_isrc}"
+        url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=community-app-v1.0&format=json&{param}"
+
         return self.make_request(url)
 
     def get_artist_chart(self, country="US", page=1) -> dict:
@@ -161,7 +171,7 @@ class MusixMatchAPI:
         return response.json()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     api = MusixMatchAPI()
     search = api.search_artist("adele")
     print(json.dumps(search, indent=4))
