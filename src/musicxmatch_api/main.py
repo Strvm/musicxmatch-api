@@ -28,6 +28,7 @@ class EndPoints(Enum):
     GET_ALBUM = "album.get"
     GET_ALBUM_TRACKS = "album.tracks.get"
     GET_TRACK_LYRICS_TRANSLATION = "crowd.track.translations.get"
+    GET_TRACK_RICHSYNC = "track.richsync.get"
 
 
 class MusixMatchAPI:
@@ -107,7 +108,7 @@ class MusixMatchAPI:
         return signature
 
     def search_tracks(self, track_query, page=1) -> dict:
-        url = f"{EndPoints.SEARCH_TRACK.value}?app_id=mxm-com-v1.0&format=json&q={urllib.parse.quote(track_query)}&f_has_lyrics=true&page_size=100&page={page}"
+        url = f"{EndPoints.SEARCH_TRACK.value}?app_id=web-desktop-app-v1.0&format=json&q={urllib.parse.quote(track_query)}&f_has_lyrics=true&page_size=100&page={page}"
         return self.make_request(url)
 
     def get_track(self, track_id=None, track_isrc=None) -> dict:
@@ -115,7 +116,7 @@ class MusixMatchAPI:
             raise ValueError("Either track_id or track_isrc must be provided.")
 
         param = f"track_id={track_id}" if track_id else f"track_isrc={track_isrc}"
-        url = f"{EndPoints.GET_TRACK.value}?app_id=mxm-com-v1.0&format=json&{param}"
+        url = f"{EndPoints.GET_TRACK.value}?app_id=web-desktop-app-v1.0&format=json&{param}"
 
         return self.make_request(url)
 
@@ -124,41 +125,76 @@ class MusixMatchAPI:
             raise ValueError("Either track_id or track_isrc must be provided.")
 
         param = f"track_id={track_id}" if track_id else f"track_isrc={track_isrc}"
-        url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=mxm-com-v1.0&format=json&{param}"
+        url = f"{EndPoints.GET_TRACK_LYRICS.value}?app_id=web-desktop-app-v1.0&format=json&{param}"
 
         return self.make_request(url)
 
     def get_artist_chart(self, country="US", page=1) -> dict:
-        url = f"{EndPoints.GET_ARTIST_CHART.value}?app_id=mxm-com-v1.0&format=json&page_size=100&country={country}&page={page}"
+        url = f"{EndPoints.GET_ARTIST_CHART.value}?app_id=web-desktop-app-v1.0&format=json&page_size=100&country={country}&page={page}"
         return self.make_request(url)
 
     def get_track_chart(self, country="US", page=1) -> dict:
-        url = f"{EndPoints.GET_TRACT_CHART.value}?app_id=mxm-com-v1.0&format=json&page_size=100&country={country}&page={page}"
+        url = f"{EndPoints.GET_TRACT_CHART.value}?app_id=web-desktop-app-v1.0&format=json&page_size=100&country={country}&page={page}"
         return self.make_request(url)
 
     def search_artist(self, query, page=1) -> dict:
-        url = f"{EndPoints.SEARCH_ARTIST.value}?app_id=mxm-com-v1.0&format=json&q_artist={urllib.parse.quote(query)}&page_size=100&page={page}"
+        url = f"{EndPoints.SEARCH_ARTIST.value}?app_id=web-desktop-app-v1.0&format=json&q_artist={urllib.parse.quote(query)}&page_size=100&page={page}"
         return self.make_request(url)
 
     def get_artist(self, artist_id) -> dict:
-        url = f"{EndPoints.GET_ARTIST.value}?app_id=mxm-com-v1.0&format=json&artist_id={artist_id}"
+        url = f"{EndPoints.GET_ARTIST.value}?app_id=web-desktop-app-v1.0&format=json&artist_id={artist_id}"
         return self.make_request(url)
 
     def get_artist_albums(self, artist_id, page=1) -> dict:
-        url = f"{EndPoints.GET_ARTIST_ALBUMS.value}?app_id=mxm-com-v1.0&format=json&artist_id={artist_id}&page_size=100&page={page}"
+        url = f"{EndPoints.GET_ARTIST_ALBUMS.value}?app_id=web-desktop-app-v1.0&format=json&artist_id={artist_id}&page_size=100&page={page}"
         return self.make_request(url)
 
     def get_album(self, album_id) -> dict:
-        url = f"{EndPoints.GET_ALBUM.value}?app_id=mxm-com-v1.0&format=json&album_id={album_id}"
+        url = f"{EndPoints.GET_ALBUM.value}?app_id=web-desktop-app-v1.0&format=json&album_id={album_id}"
         return self.make_request(url)
 
     def get_album_tracks(self, album_id, page=1) -> dict:
-        url = f"{EndPoints.GET_ALBUM_TRACKS.value}?app_id=mxm-com-v1.0&format=json&album_id={album_id}&page_size=100&page={page}"
+        url = f"{EndPoints.GET_ALBUM_TRACKS.value}?app_id=web-desktop-app-v1.0&format=json&album_id={album_id}&page_size=100&page={page}"
         return self.make_request(url)
 
     def get_track_lyrics_translation(self, track_id, selected_language) -> dict:
-        url = f"{EndPoints.GET_TRACK_LYRICS_TRANSLATION.value}?app_id=mxm-com-v1.0&format=json&track_id={track_id}&selected_language={selected_language}"
+        url = f"{EndPoints.GET_TRACK_LYRICS_TRANSLATION.value}?app_id=web-desktop-app-v1.0&format=json&track_id={track_id}&selected_language={selected_language}"
         return self.make_request(url)
+
+    def get_track_richsync(
+        self,
+        commontrack_id: str = None,
+        track_id: str = None,
+        track_isrc: str = None,
+        f_richsync_length: str = None,
+        f_richsync_length_max_deviation: str = None,
+    ) -> dict:
+        """
+        Fetch richsync data from Musixmatch with optional filters.
+
+        Args:
+            commontrack_id (str): Musixmatch commontrack ID.
+            track_id (str): Musixmatch track ID.
+            track_isrc (str): ISRC identifier.
+            f_richsync_length (str): Desired sync length in seconds.
+            f_richsync_length_max_deviation (str): Max allowed deviation from sync length.
+        """
+        base_url = f"{EndPoints.GET_TRACK_RICHSYNC.value}?app_id=web-desktop-app-v1.0&format=json"
+
+        if commontrack_id:
+            base_url += f"&commontrack_id={commontrack_id}"
+        if track_id:
+            base_url += f"&track_id={track_id}"
+        if track_isrc:
+            base_url += f"&track_isrc={track_isrc}"
+        if f_richsync_length:
+            base_url += f"&f_richsync_length={f_richsync_length}"
+        if f_richsync_length_max_deviation:
+            base_url += (
+                f"&f_richsync_length_max_deviation={f_richsync_length_max_deviation}"
+            )
+
+        return self.make_request(base_url)
 
     def make_request(self, url) -> dict:
         url = url.replace("%20", "+").replace(" ", "+")
